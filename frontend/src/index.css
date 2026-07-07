@@ -1,0 +1,14 @@
+/* Minimal reset. MUI's CssBaseline (added with the theme provider in a later
+   commit) handles the bulk of normalization; this just removes default
+   browser margins so there's no unstyled flash before that mounts. */
+html,
+body,
+#root {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

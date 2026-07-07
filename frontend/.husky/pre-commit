@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+# Hooks run with cwd at the repo root; only run frontend checks when frontend
+# files are actually staged, and run lint-staged from inside frontend/ so it
+# picks up frontend/package.json's config and local node_modules/.bin.
+if git diff --cached --name-only | grep -q '^frontend/'; then
+  cd frontend && npx lint-staged
+fi
