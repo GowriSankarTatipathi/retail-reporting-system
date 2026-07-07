@@ -54,4 +54,6 @@ public interface OrderRepository extends JpaRepository<Order, Long>, JpaSpecific
     long countDistinctCustomersInRange(@Param("start") LocalDateTime start,
                                         @Param("end") LocalDateTime end,
                                         @Param("excludedStatus") OrderStatus excludedStatus);
+
+    boolean existsByCustomerId(Long customerId);
 }
