@@ -69,6 +69,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                             new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
+                    // Read by RequestLoggingFilter, which may run outside the window where
+                    // SecurityContextHolder is still populated (Spring Security clears it
+                    // before control returns to filters registered ahead of its chain).
+                    request.setAttribute("actorEmail", email);
                 }
             }
         } catch (Exception ex) {
