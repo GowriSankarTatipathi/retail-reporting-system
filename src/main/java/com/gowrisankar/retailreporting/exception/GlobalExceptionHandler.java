@@ -81,6 +81,12 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.FORBIDDEN, "You do not have permission to perform this action", req);
     }
 
+    @ExceptionHandler(ReportGenerationException.class)
+    public ResponseEntity<ErrorResponse> handleReportGeneration(ReportGenerationException ex, HttpServletRequest req) {
+        log.error("Report generation failed on {}: {}", req.getRequestURI(), ex.getMessage(), ex);
+        return build(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to generate the requested report export", req);
+    }
+
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErrorResponse> handleDataIntegrity(DataIntegrityViolationException ex, HttpServletRequest req) {
         log.error("Data integrity violation on {}: {}", req.getRequestURI(), ex.getMessage());
