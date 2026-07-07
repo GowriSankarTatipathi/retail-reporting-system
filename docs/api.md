@@ -50,6 +50,21 @@ Public. `{ "email": "...", "password": "..." }` -> same shape as register's 200 
 
 Public. `{ "refreshToken": "..." }` -> new access/refresh token pair.
 
+### Self-Service Account Endpoints (require a bearer token)
+
+These three exist specifically to back the frontend's Profile/Change Password pages -
+note that despite sharing the `/api/v1/auth/*` prefix with the public endpoints above,
+all three require authentication (see `SecurityConfig`/`JwtAuthenticationFilter`).
+
+| Endpoint | Body | Returns |
+|---|---|---|
+| `GET /api/v1/auth/me` | - | The caller's own `UserResponse` |
+| `PATCH /api/v1/auth/me` | `{ "fullName": "..." }` | Updated `UserResponse` (email/role are not editable here) |
+| `POST /api/v1/auth/change-password` | `{ "currentPassword": "...", "newPassword": "..." }` | `204 No Content`; `401` if `currentPassword` is wrong |
+
+There is intentionally no email-based "forgot password" flow - that requires SMTP
+delivery infrastructure this deployment doesn't provision. See ROADMAP.md.
+
 ## Role Matrix
 
 | Endpoint group | VIEWER | ANALYST | MANAGER | ADMIN |

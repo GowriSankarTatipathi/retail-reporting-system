@@ -5,6 +5,21 @@ Contributions toward any of these are welcome - see [CONTRIBUTING.md](CONTRIBUTI
 
 ## Near-Term
 
+- [ ] **Email-based password reset.** `/api/v1/auth/change-password` covers self-service
+  password changes for an already-authenticated user; a true "forgot password" flow
+  (emailed reset link/token) needs SMTP delivery infrastructure this deployment doesn't
+  provision, so the frontend's Forgot Password page explains this instead of faking it.
+- [ ] **Audit log API.** Structured access logs currently go to files/console
+  (`logback-spring.xml`), not a queryable table. A persisted, filterable audit trail
+  (and the admin UI to browse it) is a natural next step.
+- [ ] **Granular permissions.** Authorization is role-based (4 fixed roles) rather than
+  a separate permissions/claims system - sufficient for this project's scope, but a real
+  permissions model would be needed for finer-grained access control.
+- [ ] **Inventory adjustment history.** `InventoryService.adjust` mutates the current
+  quantity directly; there's no ledger of past adjustments. A `stock_adjustments` table
+  would back a real "stock history" view.
+- [ ] **Notifications.** No persisted notification/inbox system exists server-side yet;
+  the frontend uses ephemeral toasts for immediate feedback instead.
 - [ ] **Refresh token revocation.** Add a Redis-backed denylist so logout (or an admin
   disabling a user) immediately invalidates outstanding refresh tokens, instead of
   waiting out their TTL.

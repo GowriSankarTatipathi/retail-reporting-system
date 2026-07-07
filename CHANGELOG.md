@@ -6,7 +6,21 @@ All notable changes to this project are documented here. Format loosely follows
 
 ## [Unreleased]
 
-Nothing yet.
+### Added
+
+- `GET /api/v1/auth/me`, `PATCH /api/v1/auth/me`, `POST /api/v1/auth/change-password` -
+  self-service profile/password endpoints added specifically to back the new frontend's
+  Profile and Change Password pages with real data (additive only; no existing
+  endpoint's contract changed).
+- Frontend application (`frontend/`) - see `frontend/README.md`.
+
+### Fixed
+
+- Tightened `/api/v1/auth/**` public-path matching (both `SecurityConfig` and
+  `JwtAuthenticationFilter`) to only the three genuinely anonymous endpoints
+  (register/login/refresh). The new `/me` and `/change-password` endpoints share the
+  prefix but require authentication - a regression test
+  (`meEndpointRequiresAuthenticationDespiteBeingUnderAuthPrefix`) guards this.
 
 ## [1.0.1] - 2026-07-07
 

@@ -28,8 +28,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final Logger log = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
     private static final String BEARER_PREFIX = "Bearer ";
 
+    // NOTE: only the genuinely anonymous auth endpoints are listed here. /api/v1/auth/me,
+    // /api/v1/auth/me (PATCH), and /api/v1/auth/change-password are self-service but still
+    // require a valid bearer token, so they must NOT be in this list (must go through JWT
+    // parsing) - mirrored by the matching exclusions in SecurityConfig's permitAll rules.
     private static final RequestMatcher PUBLIC_PATHS = new org.springframework.security.web.util.matcher.OrRequestMatcher(
-            new AntPathRequestMatcher("/api/v1/auth/**"),
+            new AntPathRequestMatcher("/api/v1/auth/register"),
+            new AntPathRequestMatcher("/api/v1/auth/login"),
+            new AntPathRequestMatcher("/api/v1/auth/refresh"),
             new AntPathRequestMatcher("/swagger-ui/**"),
             new AntPathRequestMatcher("/v3/api-docs/**"),
             new AntPathRequestMatcher("/actuator/health/**"),

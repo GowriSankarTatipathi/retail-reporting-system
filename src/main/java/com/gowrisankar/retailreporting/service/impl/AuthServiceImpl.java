@@ -2,12 +2,16 @@ package com.gowrisankar.retailreporting.service.impl;
 
 import com.gowrisankar.retailreporting.domain.entity.Role;
 import com.gowrisankar.retailreporting.domain.entity.User;
+import com.gowrisankar.retailreporting.dto.request.ChangePasswordRequest;
 import com.gowrisankar.retailreporting.dto.request.LoginRequest;
 import com.gowrisankar.retailreporting.dto.request.RefreshRequest;
 import com.gowrisankar.retailreporting.dto.request.RegisterRequest;
+import com.gowrisankar.retailreporting.dto.request.UpdateProfileRequest;
 import com.gowrisankar.retailreporting.dto.response.AuthResponse;
+import com.gowrisankar.retailreporting.dto.response.UserResponse;
 import com.gowrisankar.retailreporting.exception.DuplicateResourceException;
 import com.gowrisankar.retailreporting.exception.InvalidCredentialsException;
+import com.gowrisankar.retailreporting.exception.ResourceNotFoundException;
 import com.gowrisankar.retailreporting.mapper.UserMapper;
 import com.gowrisankar.retailreporting.repository.UserRepository;
 import com.gowrisankar.retailreporting.security.CustomUserDetailsService;
@@ -92,6 +96,39 @@ public class AuthServiceImpl implements AuthService {
         }
 
         return issueTokens((SecurityUser) userDetails);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public UserResponse getCurrentUser(String email) {
+        return UserMapper.toResponse(findByEmailOrThrow(email));
+    }
+
+    @Override
+    @Transactional
+    public UserResponse updateProfile(String email, UpdateProfileRequest request) {
+        User user = findByEmailOrThrow(email);
+        user.setFullName(request.fullName());
+        User saved = userRepository.save(user);
+        log.info("User updated own profile: {}", saved.getEmail());
+        return UserMapper.toResponse(saved);
+    }
+
+    @Override
+    @Transactional
+    public void changePassword(String email, ChangePasswordRequest request) {
+        User user = findByEmailOrThrow(email);
+        if (!passwordEncoder.matches(request.currentPassword(), user.getPasswordHash())) {
+            throw new InvalidCredentialsException("Current password is incorrect");
+        }
+        user.setPasswordHash(passwordEncoder.encode(request.newPassword()));
+        userRepository.save(user);
+        log.info("User changed their own password: {}", email);
+    }
+
+    private User findByEmailOrThrow(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> ResourceNotFoundException.of("User", email));
     }
 
     private AuthResponse issueTokens(SecurityUser securityUser) {

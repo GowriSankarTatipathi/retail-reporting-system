@@ -85,7 +85,12 @@ public class SecurityConfig {
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authProvider)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1/auth/**").permitAll()
+                        // Only the truly anonymous auth endpoints are public. /api/v1/auth/me
+                        // (GET/PATCH) and /api/v1/auth/change-password are self-service but
+                        // still require a valid bearer token, so they fall through to
+                        // anyRequest().authenticated() below - see JwtAuthenticationFilter's
+                        // matching PUBLIC_PATHS exclusion.
+                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/register", "/api/v1/auth/login", "/api/v1/auth/refresh").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/actuator/health/**", "/actuator/info").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
