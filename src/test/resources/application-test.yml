@@ -1,0 +1,36 @@
+# Test profile: in-memory H2, Flyway disabled (Hibernate generates the schema straight
+# from the entity model), simple in-memory cache instead of Redis. This lets the full
+# test suite run with zero external services - no Postgres, no Redis required.
+spring:
+  datasource:
+    url: jdbc:h2:mem:retail_reporting_test;MODE=PostgreSQL;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+
+  flyway:
+    enabled: false
+
+  cache:
+    type: simple
+
+app:
+  jwt:
+    secret: dGVzdC1vbmx5LXNlY3JldC1rZXktZm9yLWp1bml0LXRlc3RzLW5vdC1mb3ItcHJvZHVjdGlvbi11c2U=
+    access-token-ttl-minutes: 15
+    refresh-token-ttl-days: 7
+  cors:
+    allowed-origins: http://localhost:3000
+
+logging:
+  level:
+    root: WARN
+    com.gowrisankar.retailreporting: INFO
