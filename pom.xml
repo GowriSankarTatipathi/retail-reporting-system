@@ -54,10 +54,16 @@
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-database-postgresql</artifactId>
-        </dependency>
+        <!-- NOTE: flyway-database-postgresql is intentionally NOT declared here.
+             Spring Boot 3.2.x's parent BOM manages Flyway 9.x, which still bundles
+             PostgreSQL support directly inside flyway-core - the separate
+             flyway-database-postgresql module (and its BOM entry) only exists from
+             Flyway 10 / Spring Boot 3.3+ onward. Declaring it here with no BOM-managed
+             version is exactly what caused:
+               'dependencies.dependency.version' for org.flywaydb:flyway-database-postgresql:jar is missing
+             If you upgrade the parent to Spring Boot 3.3+ later, re-add this dependency
+             with no explicit version (it will be BOM-managed at that point). -->
+
 
         <!-- Security -->
         <dependency>

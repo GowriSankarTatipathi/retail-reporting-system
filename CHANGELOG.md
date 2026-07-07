@@ -8,6 +8,16 @@ All notable changes to this project are documented here. Format loosely follows
 
 Nothing yet.
 
+## [1.0.1] - 2026-07-07
+
+### Fixed
+
+- Removed `org.flywaydb:flyway-database-postgresql`, which has no version managed by
+  the Spring Boot 3.2.5 parent BOM (that module only became BOM-managed from Flyway 10
+  / Spring Boot 3.3+ onward). This broke `mvn verify` at the POM-parsing stage before
+  any code compiled. `flyway-core` alone already bundles PostgreSQL support on this
+  Spring Boot version. Found via a real local build attempt.
+
 ## [1.0.0] - 2026-07-07
 
 ### Added
@@ -37,5 +47,6 @@ Nothing yet.
 - Full repository documentation set: README, CONTRIBUTING, CODE_OF_CONDUCT, SECURITY,
   ROADMAP, and `docs/` (requirements, architecture, database, api, deployment, testing).
 
-[Unreleased]: https://github.com/gowrisankar-t/retail-reporting-system/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/gowrisankar-t/retail-reporting-system/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/gowrisankar-t/retail-reporting-system/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/gowrisankar-t/retail-reporting-system/releases/tag/v1.0.0
