@@ -40,10 +40,11 @@ export function useTopCustomers(params: DateRangeParams & { limit: number }, ena
   });
 }
 
-export function useLowStockItems() {
+export function useLowStockItems(enabled = true) {
   return useQuery({
     queryKey: queryKeys.reports.lowStock,
     queryFn: reportsApi.getLowStockItems,
+    enabled,
   });
 }
 
