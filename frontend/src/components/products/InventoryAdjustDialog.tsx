@@ -25,7 +25,7 @@ export function InventoryAdjustDialog({ open, onClose, product }: InventoryAdjus
     control,
     handleSubmit,
     reset,
-    formState: { isSubmitting },
+    formState: { isSubmitting, isDirty },
   } = useForm<InventoryAdjustFormValues>({
     resolver: zodResolver(inventoryAdjustSchema),
     defaultValues: { quantityDelta: 0, reason: '' },
@@ -60,6 +60,7 @@ export function InventoryAdjustDialog({ open, onClose, product }: InventoryAdjus
       onClose={onClose}
       onSubmit={handleSubmit(onSubmit)}
       isSubmitting={isSubmitting}
+      isDirty={isDirty}
       serverError={serverError}
       submitLabel="Apply adjustment"
     >

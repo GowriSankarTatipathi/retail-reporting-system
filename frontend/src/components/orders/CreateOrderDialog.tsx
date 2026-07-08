@@ -45,7 +45,7 @@ export function CreateOrderDialog({ open, onClose }: CreateOrderDialogProps) {
     handleSubmit,
     reset,
     watch,
-    formState: { isSubmitting, errors },
+    formState: { isSubmitting, errors, isDirty },
   } = useForm<OrderFormValues>({
     resolver: zodResolver(orderSchema),
     defaultValues: { customerId: 0, items: [{ productId: 0, quantity: 1 }] },
@@ -86,6 +86,7 @@ export function CreateOrderDialog({ open, onClose }: CreateOrderDialogProps) {
       onClose={onClose}
       onSubmit={handleSubmit(onSubmit)}
       isSubmitting={isSubmitting}
+      isDirty={isDirty}
       serverError={serverError}
       submitLabel="Place order"
       maxWidth="md"

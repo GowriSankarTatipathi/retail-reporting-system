@@ -26,7 +26,7 @@ export function CategoryFormDialog({ open, onClose, category }: CategoryFormDial
     control,
     handleSubmit,
     reset,
-    formState: { isSubmitting },
+    formState: { isSubmitting, isDirty },
   } = useForm<CategoryFormValues>({
     resolver: zodResolver(categorySchema),
     defaultValues: { name: '', description: '' },
@@ -63,6 +63,7 @@ export function CategoryFormDialog({ open, onClose, category }: CategoryFormDial
       onClose={onClose}
       onSubmit={handleSubmit(onSubmit)}
       isSubmitting={isSubmitting}
+      isDirty={isDirty}
       serverError={serverError}
     >
       <FormTextField name="name" control={control} label="Name" autoFocus />

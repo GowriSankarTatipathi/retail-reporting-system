@@ -37,7 +37,7 @@ export function CustomerFormDialog({ open, onClose, customer }: CustomerFormDial
     control,
     handleSubmit,
     reset,
-    formState: { isSubmitting },
+    formState: { isSubmitting, isDirty },
   } = useForm<CustomerFormValues>({
     resolver: zodResolver(customerSchema),
     defaultValues: EMPTY_VALUES,
@@ -96,6 +96,7 @@ export function CustomerFormDialog({ open, onClose, customer }: CustomerFormDial
       onClose={onClose}
       onSubmit={handleSubmit(onSubmit)}
       isSubmitting={isSubmitting}
+      isDirty={isDirty}
       serverError={serverError}
       maxWidth="md"
     >

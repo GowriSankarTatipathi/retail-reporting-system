@@ -41,7 +41,7 @@ export function ProductFormDialog({ open, onClose, product }: ProductFormDialogP
     control,
     handleSubmit,
     reset,
-    formState: { isSubmitting },
+    formState: { isSubmitting, isDirty },
   } = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema),
     defaultValues: EMPTY_VALUES,
@@ -103,6 +103,7 @@ export function ProductFormDialog({ open, onClose, product }: ProductFormDialogP
       onClose={onClose}
       onSubmit={handleSubmit(onSubmit)}
       isSubmitting={isSubmitting}
+      isDirty={isDirty}
       serverError={serverError}
       maxWidth="md"
     >
