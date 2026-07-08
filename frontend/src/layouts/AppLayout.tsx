@@ -28,15 +28,9 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { useAuth } from '@/hooks/useAuth';
 import { useThemeMode } from '@/hooks/useThemeMode';
 import { NAV_ITEMS } from '@/constants/navigation';
+import { initialsOf } from '@/utils/format';
 
 const DRAWER_WIDTH = 240;
-
-function initialsOf(fullName: string): string {
-  const parts = fullName.trim().split(/\s+/);
-  const first = parts[0]?.[0] ?? '';
-  const last = parts.length > 1 ? (parts[parts.length - 1]?.[0] ?? '') : '';
-  return (first + last).toUpperCase();
-}
 
 export function AppLayout() {
   const { user, logout } = useAuth();

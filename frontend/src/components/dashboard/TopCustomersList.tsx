@@ -1,14 +1,7 @@
 import { Avatar, List, ListItem, ListItemAvatar, ListItemText, Typography } from '@mui/material';
-import { formatCurrency } from '@/utils/format';
+import { formatCurrency, initialsOf } from '@/utils/format';
 import { EmptyState } from '@/components/common/EmptyState';
 import type { TopCustomerPoint } from '@/types';
-
-function initialsOf(name: string): string {
-  const parts = name.trim().split(/\s+/);
-  return (
-    (parts[0]?.[0] ?? '') + (parts.length > 1 ? (parts[parts.length - 1]?.[0] ?? '') : '')
-  ).toUpperCase();
-}
 
 export function TopCustomersList({ data }: { data: TopCustomerPoint[] }) {
   if (data.length === 0) {

@@ -37,3 +37,11 @@ export function formatDate(isoString: string): string {
 export function formatDateTime(isoString: string): string {
   return dateTimeFormatter.format(new Date(isoString));
 }
+
+/** First + last initials from a full name, used for avatar placeholders. */
+export function initialsOf(fullName: string): string {
+  const parts = fullName.trim().split(/\s+/);
+  return (
+    (parts[0]?.[0] ?? '') + (parts.length > 1 ? (parts[parts.length - 1]?.[0] ?? '') : '')
+  ).toUpperCase();
+}
