@@ -24,6 +24,9 @@ RUN apt-get update \
 RUN groupadd --gid 1000 appuser \
     && useradd --uid 1000 --gid appuser --shell /bin/bash --create-home appuser
 
+# Create the logs directory and explicitly hand ownership to appuser
+RUN mkdir -p /app/logs && chown -R appuser:appuser /app/logs
+
 COPY --from=build /workspace/target/retail-reporting-system.jar app.jar
 RUN chown appuser:appuser app.jar
 USER appuser

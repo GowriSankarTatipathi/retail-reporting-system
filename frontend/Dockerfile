@@ -7,7 +7,7 @@ WORKDIR /workspace
 # Cache dependencies separately from source so `docker build` doesn't
 # reinstall the world every time application code changes.
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN npm ci --ignore-scripts
 
 COPY . .
 
