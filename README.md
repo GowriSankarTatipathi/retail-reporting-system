@@ -1,9 +1,13 @@
 # Retail Reporting System
 
-A production-style backend for retail product, inventory, customer, order, and
-**reporting/analytics** management - built as a portfolio-grade demonstration of
-backend engineering, system design, and data engineering practices, not a tutorial CRUD
-app.
+A production-style full-stack system for retail product, inventory, customer, order,
+and **reporting/analytics** management - a Spring Boot/PostgreSQL/Redis backend plus a
+React/TypeScript enterprise frontend - built as a portfolio-grade demonstration of
+backend and frontend engineering, system design, and data engineering practices, not a
+tutorial CRUD app.
+
+This repository is a monorepo: the backend lives at the repo root (this README), and
+the frontend lives in [`frontend/`](frontend/README.md) with its own detailed README.
 
 [![CI](https://github.com/gowrisankar-t/retail-reporting-system/actions/workflows/ci.yml/badge.svg)](https://github.com/gowrisankar-t/retail-reporting-system/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
@@ -80,7 +84,10 @@ cp .env.example .env
 docker compose up --build
 ```
 
-The API is now live at `http://localhost:8080`. Swagger UI: `http://localhost:8080/swagger-ui.html`.
+The API is now live at `http://localhost:8080` (Swagger UI:
+`http://localhost:8080/swagger-ui.html`), and the frontend is live at
+`http://localhost:3000` - see [`frontend/README.md`](frontend/README.md) for frontend
+specifics (tech stack, pages, RBAC, tests, standalone dev setup).
 
 Flyway seeds four demo accounts (see [`docs/api.md`](docs/api.md#demo-accounts) for the
 full list and passwords) plus a realistic sample dataset (15 products, 10 customers, 60
@@ -139,8 +146,9 @@ retail-reporting-system/
 │                       (@SpringBootTest + TestRestTemplate) tests
 ├── docs/               requirements, architecture, database, api, deployment, testing
 ├── postman/            Postman collection
-├── .github/            CI workflow, issue/PR templates
-├── Dockerfile, docker-compose.yml
+├── frontend/           React/TypeScript enterprise SPA - see frontend/README.md
+├── .github/            CI workflow (backend + frontend jobs), issue/PR templates
+├── Dockerfile, docker-compose.yml   (compose also builds frontend/Dockerfile)
 └── pom.xml
 ```
 
@@ -202,6 +210,7 @@ testing strategy: [`docs/testing.md`](docs/testing.md).
 | [`docs/api.md`](docs/api.md) | Endpoint reference, demo accounts, example requests |
 | [`docs/deployment.md`](docs/deployment.md) | Docker, Render/Railway/AWS/Azure deployment configs |
 | [`docs/testing.md`](docs/testing.md) | Test strategy and how to run each suite |
+| [`frontend/README.md`](frontend/README.md) | Frontend tech stack, folder structure, pages/RBAC matrix, env vars, testing, Docker |
 | [`ROADMAP.md`](ROADMAP.md) | Planned enhancements and known scaling limits |
 | [`CHANGELOG.md`](CHANGELOG.md) | Release history |
 | [`CONTRIBUTING.md`](CONTRIBUTING.md) | How to contribute |
