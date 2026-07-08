@@ -35,6 +35,31 @@ services:
       start_period: 40s
     restart: unless-stopped
 
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        # Vite bakes this into the JS bundle at build time - it must point at
+        # wherever the backend is reachable from the *browser* (not from
+        # inside the frontend container), so localhost is correct for local
+        # docker-compose use even though "app" would be the
+        # container-to-container hostname.
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8080}
+    image: retail-reporting-frontend:local
+    container_name: retail-reporting-frontend
+    ports:
+      - "${FRONTEND_PORT:-3000}:80"
+    depends_on:
+      - app
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:80/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+
   postgres:
     image: postgres:16-alpine
     container_name: retail-reporting-postgres
