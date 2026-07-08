@@ -1,12 +1,21 @@
-// Temporary placeholder root component. Replaced in a later commit by the real
-// application shell: MUI theme provider, TanStack Query provider, and the
-// React Router route tree (see src/routes).
+import { RouterProvider } from 'react-router-dom';
+import { SnackbarProvider } from 'notistack';
+import { AuthProvider } from '@/contexts/AuthContext';
+import { ThemeModeProvider } from '@/contexts/ThemeModeContext';
+import { ErrorBoundary } from '@/components/common/ErrorBoundary';
+import { router } from '@/routes/router';
+
 function App() {
   return (
-    <main style={{ fontFamily: 'system-ui, sans-serif', padding: '2rem' }}>
-      <h1>Retail Reporting System</h1>
-      <p>Frontend scaffold is up. The application shell lands in the next commit.</p>
-    </main>
+    <ErrorBoundary>
+      <ThemeModeProvider>
+        <SnackbarProvider maxSnack={3} anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
+          <AuthProvider>
+            <RouterProvider router={router} />
+          </AuthProvider>
+        </SnackbarProvider>
+      </ThemeModeProvider>
+    </ErrorBoundary>
   );
 }
 
