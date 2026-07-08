@@ -5,6 +5,7 @@ import { ProtectedRoute } from './ProtectedRoute';
 import { PublicOnlyRoute } from './PublicOnlyRoute';
 import { RequireRole } from './RequireRole';
 import { lazyRoute } from './lazyRoute';
+import { DELETE_ROLES, REPORTING_ROLES } from '@/constants/permissions';
 
 export const router = createBrowserRouter([
   {
@@ -58,13 +59,13 @@ export const router = createBrowserRouter([
             element: lazyRoute(() => import('@/pages/auth/ChangePasswordPage')),
           },
           {
-            element: <RequireRole allowedRoles={['ADMIN', 'MANAGER', 'ANALYST']} />,
+            element: <RequireRole allowedRoles={REPORTING_ROLES} />,
             children: [
               { path: '/reports', element: lazyRoute(() => import('@/pages/reports/ReportsPage')) },
             ],
           },
           {
-            element: <RequireRole allowedRoles={['ADMIN']} />,
+            element: <RequireRole allowedRoles={DELETE_ROLES} />,
             children: [
               { path: '/admin/users', element: lazyRoute(() => import('@/pages/admin/UsersPage')) },
             ],

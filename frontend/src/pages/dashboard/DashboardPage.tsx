@@ -25,16 +25,15 @@ import { RecentOrdersTable } from '@/components/dashboard/RecentOrdersTable';
 import { formatCurrency, formatNumber } from '@/utils/format';
 import { toApiError } from '@/services/api';
 import { lastNMonths, lastNDays } from '@/utils/dateRange';
-import type { Role } from '@/types';
+import { canViewReports } from '@/constants/permissions';
 
-const REPORTING_ROLES: Role[] = ['ADMIN', 'MANAGER', 'ANALYST'];
 const LOOKBACK_OPTIONS = [7, 30, 90] as const;
 
 export default function DashboardPage() {
   const { user } = useAuth();
   const [lookbackDays, setLookbackDays] = useState<number>(30);
 
-  const canSeeReports = !!user && REPORTING_ROLES.includes(user.role);
+  const canSeeReports = canViewReports(user?.role);
 
   const summary = useDashboardSummary(lookbackDays);
   const recentOrders = useOrders({ size: 5, sort: 'orderDate', sortDirection: 'desc' });
