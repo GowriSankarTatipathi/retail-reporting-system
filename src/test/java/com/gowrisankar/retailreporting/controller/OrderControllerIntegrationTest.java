@@ -32,10 +32,13 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
+// UPDATED: Wipe the database after every single test method to prevent Unique Index collisions in @BeforeEach
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class OrderControllerIntegrationTest {
 
     @Autowired
@@ -50,17 +53,17 @@ class OrderControllerIntegrationTest {
     @BeforeEach
     void seedManagerAndAuthenticate() {
         userRepository.save(User.builder()
-                .email("order.manager@retail-reporting.local")
-                .passwordHash(passwordEncoder.encode("Password123"))
-                .fullName("Order Manager")
-                .role(Role.MANAGER)
-                .enabled(true)
-                .build());
+            .email("order.manager@retail-reporting.local")
+            .passwordHash(passwordEncoder.encode("Password123"))
+            .fullName("Order Manager")
+            .role(Role.MANAGER)
+            .enabled(true)
+            .build());
 
         ResponseEntity<AuthResponse> loginResponse = restTemplate.postForEntity(
-                "/api/v1/auth/login",
-                new LoginRequest("order.manager@retail-reporting.local", "Password123"),
-                AuthResponse.class);
+            "/api/v1/auth/login",
+            new LoginRequest("order.manager@retail-reporting.local", "Password123"),
+            AuthResponse.class);
         managerToken = loginResponse.getBody().accessToken();
     }
 
@@ -72,20 +75,20 @@ class OrderControllerIntegrationTest {
 
     private CategoryResponse createCategory(String name) {
         return restTemplate.exchange("/api/v1/categories", HttpMethod.POST,
-                new HttpEntity<>(new CategoryRequest(name, null), authHeaders()), CategoryResponse.class).getBody();
+            new HttpEntity<>(new CategoryRequest(name, null), authHeaders()), CategoryResponse.class).getBody();
     }
 
     private ProductResponse createProduct(String sku, Long categoryId, int quantity) {
         ProductRequest request = new ProductRequest(sku, "Product " + sku, "desc", categoryId,
-                new BigDecimal("25.00"), new BigDecimal("10.00"), true, quantity, 5, "WH-1");
+            new BigDecimal("25.00"), new BigDecimal("10.00"), true, quantity, 5, "WH-1");
         return restTemplate.exchange("/api/v1/products", HttpMethod.POST,
-                new HttpEntity<>(request, authHeaders()), ProductResponse.class).getBody();
+            new HttpEntity<>(request, authHeaders()), ProductResponse.class).getBody();
     }
 
     private CustomerResponse createCustomer(String email) {
         CustomerRequest request = new CustomerRequest("Test", "Customer", email, null, null, null, null, null);
         return restTemplate.exchange("/api/v1/customers", HttpMethod.POST,
-                new HttpEntity<>(request, authHeaders()), CustomerResponse.class).getBody();
+            new HttpEntity<>(request, authHeaders()), CustomerResponse.class).getBody();
     }
 
     @Test
@@ -96,15 +99,15 @@ class OrderControllerIntegrationTest {
 
         OrderRequest orderRequest = new OrderRequest(customer.id(), List.of(new OrderItemRequest(product.id(), 4)));
         ResponseEntity<OrderResponse> orderResponse = restTemplate.exchange(
-                "/api/v1/orders", HttpMethod.POST, new HttpEntity<>(orderRequest, authHeaders()), OrderResponse.class);
+            "/api/v1/orders", HttpMethod.POST, new HttpEntity<>(orderRequest, authHeaders()), OrderResponse.class);
 
         assertThat(orderResponse.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(orderResponse.getBody().totalAmount()).isEqualByComparingTo(new BigDecimal("100.00"));
         assertThat(orderResponse.getBody().status()).isEqualTo(OrderStatus.PENDING);
 
         ResponseEntity<ProductResponse> productAfter = restTemplate.exchange(
-                "/api/v1/products/" + product.id(), HttpMethod.GET,
-                new HttpEntity<>(authHeaders()), ProductResponse.class);
+            "/api/v1/products/" + product.id(), HttpMethod.GET,
+            new HttpEntity<>(authHeaders()), ProductResponse.class);
         assertThat(productAfter.getBody().quantityOnHand()).isEqualTo(16);
     }
 
@@ -116,7 +119,7 @@ class OrderControllerIntegrationTest {
 
         OrderRequest orderRequest = new OrderRequest(customer.id(), List.of(new OrderItemRequest(product.id(), 999)));
         ResponseEntity<ErrorResponse> response = restTemplate.exchange(
-                "/api/v1/orders", HttpMethod.POST, new HttpEntity<>(orderRequest, authHeaders()), ErrorResponse.class);
+            "/api/v1/orders", HttpMethod.POST, new HttpEntity<>(orderRequest, authHeaders()), ErrorResponse.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
     }
@@ -128,18 +131,18 @@ class OrderControllerIntegrationTest {
         CustomerResponse customer = createCustomer("order.customer3@example.com");
 
         OrderResponse order = restTemplate.exchange("/api/v1/orders", HttpMethod.POST,
-                new HttpEntity<>(new OrderRequest(customer.id(), List.of(new OrderItemRequest(product.id(), 5))), authHeaders()),
-                OrderResponse.class).getBody();
+            new HttpEntity<>(new OrderRequest(customer.id(), List.of(new OrderItemRequest(product.id(), 5))), authHeaders()),
+            OrderResponse.class).getBody();
 
         ResponseEntity<OrderResponse> cancelResponse = restTemplate.exchange(
-                "/api/v1/orders/" + order.id() + "/status", HttpMethod.PATCH,
-                new HttpEntity<>(new OrderStatusUpdateRequest(OrderStatus.CANCELLED), authHeaders()), OrderResponse.class);
+            "/api/v1/orders/" + order.id() + "/status", HttpMethod.PATCH,
+            new HttpEntity<>(new OrderStatusUpdateRequest(OrderStatus.CANCELLED), authHeaders()), OrderResponse.class);
 
         assertThat(cancelResponse.getBody().status()).isEqualTo(OrderStatus.CANCELLED);
 
         ResponseEntity<ProductResponse> productAfter = restTemplate.exchange(
-                "/api/v1/products/" + product.id(), HttpMethod.GET,
-                new HttpEntity<>(authHeaders()), ProductResponse.class);
+            "/api/v1/products/" + product.id(), HttpMethod.GET,
+            new HttpEntity<>(authHeaders()), ProductResponse.class);
         assertThat(productAfter.getBody().quantityOnHand()).isEqualTo(10); // fully released
     }
 }

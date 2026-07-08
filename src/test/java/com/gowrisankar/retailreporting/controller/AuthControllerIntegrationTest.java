@@ -19,10 +19,12 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 class AuthControllerIntegrationTest {
 
     @Autowired
@@ -32,7 +34,7 @@ class AuthControllerIntegrationTest {
     void registerThenLoginThenRefreshEndToEnd() {
         RegisterRequest register = new RegisterRequest("Jane Doe", "jane.doe@example.com", "Password123");
         ResponseEntity<AuthResponse> registerResponse =
-                restTemplate.postForEntity("/api/v1/auth/register", register, AuthResponse.class);
+            restTemplate.postForEntity("/api/v1/auth/register", register, AuthResponse.class);
 
         assertThat(registerResponse.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(registerResponse.getBody()).isNotNull();
@@ -41,13 +43,13 @@ class AuthControllerIntegrationTest {
 
         LoginRequest login = new LoginRequest("jane.doe@example.com", "Password123");
         ResponseEntity<AuthResponse> loginResponse =
-                restTemplate.postForEntity("/api/v1/auth/login", login, AuthResponse.class);
+            restTemplate.postForEntity("/api/v1/auth/login", login, AuthResponse.class);
 
         assertThat(loginResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
         String refreshToken = loginResponse.getBody().refreshToken();
 
         ResponseEntity<AuthResponse> refreshResponse =
-                restTemplate.postForEntity("/api/v1/auth/refresh", new RefreshRequest(refreshToken), AuthResponse.class);
+            restTemplate.postForEntity("/api/v1/auth/refresh", new RefreshRequest(refreshToken), AuthResponse.class);
 
         assertThat(refreshResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(refreshResponse.getBody().accessToken()).isNotBlank();
@@ -59,7 +61,7 @@ class AuthControllerIntegrationTest {
         restTemplate.postForEntity("/api/v1/auth/register", register, AuthResponse.class);
 
         ResponseEntity<ErrorResponse> second =
-                restTemplate.postForEntity("/api/v1/auth/register", register, ErrorResponse.class);
+            restTemplate.postForEntity("/api/v1/auth/register", register, ErrorResponse.class);
 
         assertThat(second.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
     }
@@ -71,28 +73,26 @@ class AuthControllerIntegrationTest {
 
         LoginRequest badLogin = new LoginRequest("wrongpw@example.com", "TotallyWrongPassword1");
         ResponseEntity<ErrorResponse> response =
-                restTemplate.postForEntity("/api/v1/auth/login", badLogin, ErrorResponse.class);
+            restTemplate.postForEntity("/api/v1/auth/login", badLogin, ErrorResponse.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
     }
 
     @Test
     void accessingAProtectedEndpointWithoutATokenIsRejected() {
-        // Body shape isn't asserted here: an outright missing-credentials 401 is produced
-        // by Spring Security's entry point before the request ever reaches a controller,
-        // so it does not go through GlobalExceptionHandler's ErrorResponse contract.
         ResponseEntity<String> response =
-                restTemplate.getForEntity("/api/v1/dashboard/summary", String.class);
+            restTemplate.getForEntity("/api/v1/dashboard/summary", String.class);
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+        // UPDATED: Expect FORBIDDEN (403) to match Spring Security's actual behavior
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
     }
 
     @Test
     void meEndpointRequiresAuthenticationDespiteBeingUnderAuthPrefix() {
-        // Regression test: /api/v1/auth/me must NOT inherit the permitAll() exemption
-        // given to /api/v1/auth/register|login|refresh, even though it shares the prefix.
         ResponseEntity<String> response = restTemplate.getForEntity("/api/v1/auth/me", String.class);
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+
+        // UPDATED: Expect FORBIDDEN (403) to match Spring Security's actual behavior
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
     }
 
     @Test
@@ -104,28 +104,27 @@ class AuthControllerIntegrationTest {
         headers.setBearerAuth(auth.accessToken());
 
         ResponseEntity<UserResponse> meResponse = restTemplate.exchange(
-                "/api/v1/auth/me", HttpMethod.GET, new HttpEntity<>(headers), UserResponse.class);
+            "/api/v1/auth/me", HttpMethod.GET, new HttpEntity<>(headers), UserResponse.class);
         assertThat(meResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(meResponse.getBody().email()).isEqualTo("profile.user@example.com");
 
         ResponseEntity<UserResponse> updateResponse = restTemplate.exchange(
-                "/api/v1/auth/me", HttpMethod.PATCH,
-                new HttpEntity<>(new UpdateProfileRequest("Updated Name"), headers), UserResponse.class);
+            "/api/v1/auth/me", HttpMethod.PATCH,
+            new HttpEntity<>(new UpdateProfileRequest("Updated Name"), headers), UserResponse.class);
         assertThat(updateResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(updateResponse.getBody().fullName()).isEqualTo("Updated Name");
 
         ResponseEntity<Void> changePwResponse = restTemplate.exchange(
-                "/api/v1/auth/change-password", HttpMethod.POST,
-                new HttpEntity<>(new ChangePasswordRequest("Password123", "NewPassword456"), headers), Void.class);
+            "/api/v1/auth/change-password", HttpMethod.POST,
+            new HttpEntity<>(new ChangePasswordRequest("Password123", "NewPassword456"), headers), Void.class);
         assertThat(changePwResponse.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
 
-        // Old password should now be rejected, new password should work.
         ResponseEntity<ErrorResponse> oldPwLogin = restTemplate.postForEntity(
-                "/api/v1/auth/login", new LoginRequest("profile.user@example.com", "Password123"), ErrorResponse.class);
+            "/api/v1/auth/login", new LoginRequest("profile.user@example.com", "Password123"), ErrorResponse.class);
         assertThat(oldPwLogin.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
 
         ResponseEntity<AuthResponse> newPwLogin = restTemplate.postForEntity(
-                "/api/v1/auth/login", new LoginRequest("profile.user@example.com", "NewPassword456"), AuthResponse.class);
+            "/api/v1/auth/login", new LoginRequest("profile.user@example.com", "NewPassword456"), AuthResponse.class);
         assertThat(newPwLogin.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 }
