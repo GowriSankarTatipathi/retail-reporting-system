@@ -2,11 +2,12 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tansta
 import { ordersApi, queryKeys } from '@/services/api';
 import type { OrderRequest, OrderSearchParams, OrderStatus, PageQuery } from '@/types';
 
-export function useOrders(params: OrderSearchParams & PageQuery) {
+export function useOrders(params: OrderSearchParams & PageQuery, enabled = true) {
   return useQuery({
     queryKey: queryKeys.orders.list(params),
     queryFn: () => ordersApi.searchOrders(params),
     placeholderData: keepPreviousData,
+    enabled,
   });
 }
 

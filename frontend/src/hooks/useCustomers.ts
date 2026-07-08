@@ -2,11 +2,12 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tansta
 import { customersApi, queryKeys } from '@/services/api';
 import type { CustomerRequest, CustomerSearchParams, PageQuery } from '@/types';
 
-export function useCustomers(params: CustomerSearchParams & PageQuery) {
+export function useCustomers(params: CustomerSearchParams & PageQuery, enabled = true) {
   return useQuery({
     queryKey: queryKeys.customers.list(params),
     queryFn: () => customersApi.searchCustomers(params),
     placeholderData: keepPreviousData,
+    enabled,
   });
 }
 

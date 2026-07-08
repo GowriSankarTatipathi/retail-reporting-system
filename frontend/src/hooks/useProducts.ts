@@ -7,11 +7,12 @@ import type {
   ProductSearchParams,
 } from '@/types';
 
-export function useProducts(params: ProductSearchParams & PageQuery) {
+export function useProducts(params: ProductSearchParams & PageQuery, enabled = true) {
   return useQuery({
     queryKey: queryKeys.products.list(params),
     queryFn: () => productsApi.searchProducts(params),
     placeholderData: keepPreviousData,
+    enabled,
   });
 }
 
